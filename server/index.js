@@ -4,6 +4,7 @@ let app = express();
 app.use(express.static(__dirname + '/../client/dist'));
 
 const github = require('../helpers/github.js');
+const db = require('../database/index.js');
 
 // This route should take the github username provided
 // and get the repo information from the github API, then
@@ -18,8 +19,9 @@ app.post('/repos', function (req, res) {
   req.on('end', () => {
     github.getReposByUsername(data)
       .then(repos => {
-        userRepos = repos;
-        console.log(userRepos)
+        repos.forEach((repo) => {
+          db.save(repo);
+        })
       })
       .catch((err) => {
         console.log(err);
