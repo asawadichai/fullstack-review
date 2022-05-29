@@ -11,7 +11,6 @@ const db = require('../database/index.js');
 // save the repo information in the database
 app.post('/repos', function (req, res) {
   let data = '';
-  var userRepos = [];
 
   req.on('data', chunk => {
     data += chunk;
@@ -28,9 +27,6 @@ app.post('/repos', function (req, res) {
       })
     res.end();
   })
-
-
-  //saveRepos to DB
 });
 
 // TODO - your code here!
