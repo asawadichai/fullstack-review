@@ -23,8 +23,13 @@ let repoSchema = mongoose.Schema({
 
 let Repo = mongoose.model('Repo', repoSchema);
 
+let query = () => {
+  var result = Repo.find({}).sort({'meta': -1}).limit(25).exec();
+  return result;
+}
+
 let save = (item) => {
-  var incommingRepo = new Repo({
+  var incommingRepo = new Repo ({
     _id: item.id,
     name: item.name,
     full_name: item.full_name,
@@ -42,10 +47,18 @@ let save = (item) => {
     }
   })
 
-  Repo.findOneAndUpdate({_id: item.id}, incommingRepo, {
-    new: true,
-    upsert: true
-  });
+  saveRepo()
+  async function saveRepo() {
+    try {
+      const result = await Repo.findOneAndUpdate({_id: item.id}, incommingRepo, {
+        upsert: true,
+        new: true});
+      console.log('saved repo')
+    } catch (e) {
+      console.log(e.message);
+    }
+  }
 }
 
+module.exports.query = query;
 module.exports.save = save;
