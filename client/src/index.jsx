@@ -13,6 +13,16 @@ class App extends React.Component {
 
   }
 
+  componentDidMount () {
+    $.ajax({
+      url: "/repos",
+      method: "GET"
+    })
+      .then((data) => {
+        console.log(data);
+        this.setState({repos: data})})
+  }
+
   search (term) {
     console.log(`${term} was searched`);
     $.ajax({
