@@ -10,7 +10,6 @@ class App extends React.Component {
     this.state = {
       repos: []
     }
-
   }
 
   componentDidMount () {
@@ -25,12 +24,14 @@ class App extends React.Component {
 
   search (term) {
     console.log(`${term} was searched`);
-    $.ajax({
-      url: "/repos",
-      method: "POST",
-      contentType: "text/plain",
-      data: term
-    })
+      $.ajax({
+        url: "/repos",
+        method: "POST",
+        contentType: "text/plain",
+        data: term
+      }).then((data) => {
+        console.log(data);
+        this.setState({repos: data})})
   }
 
   render () {

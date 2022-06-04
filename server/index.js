@@ -11,28 +11,34 @@ const db = require('../database/index.js');
 // save the repo information in the database
 app.post('/repos', function (req, res) {
   let data = '';
+  var results = [];
 
   req.on('data', chunk => {
     data += chunk;
-  })
+  });
+// refactor to send entire array of repos
+// after saving send back top 25 right away
   req.on('end', () => {
     github.getReposByUsername(data)
-      .then(repos => {
-        repos.forEach((repo) => {
-          db.save(repo);
-        })
+    .then(repos => {
+    db.save(repos, (query) => {
+      query.then(queryResult => {
+        console.log('sending query result', queryResult)
+        res.send(queryResult);
       })
-      .catch((err) => {
-        console.log(err);
-      })
-    res.end();
+    });
+    })
+    .catch(err => {
+      console.log('invalid username', err);
+    });
   })
+
 });
 
 // This route should send back the top 25 repos
 app.get('/repos', function (req, res) {
   db.query().then((results) => {
-    res.send(results);
+    res.status(200).send(results);
   })
 });
 

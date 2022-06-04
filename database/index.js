@@ -28,36 +28,49 @@ let query = () => {
   return result;
 }
 
-let save = (item) => {
-  var incommingRepo = new Repo ({
-    _id: item.id,
-    name: item.name,
-    full_name: item.full_name,
-    html_url: item.html_url,
-    owner: {
-      login: item.owner.login,
-      id: item.owner.id,
-      avatar_url: item.owner.avatar_url,
-      html_url: item.owner.html_url
-    },
-    meta: {
-      forks: item.forks_count,
-      watchers: item.watchers_count,
-      open_issues: item.open_issues_count
-    }
-  })
+let save = (items, callback) => {
+  var repos = [];
 
-  saveRepo()
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    var incommingRepo = new Repo ({
+      _id: item.id,
+      name: item.name,
+      full_name: item.full_name,
+      html_url: item.html_url,
+      owner: {
+        login: item.owner.login,
+        id: item.owner.id,
+        avatar_url: item.owner.avatar_url,
+        html_url: item.owner.html_url
+      },
+      meta: {
+        forks: item.forks_count,
+        watchers: item.watchers_count,
+        open_issues: item.open_issues_count
+      }
+    })
+    repos.push(saveRepo(incommingRepo));
+  }
+
   async function saveRepo() {
     try {
-      const result = await Repo.findOneAndUpdate({_id: item.id}, incommingRepo, {
+      await Repo.findOneAndUpdate({_id: item.id}, incommingRepo, {
         upsert: true,
-        new: true});
-      console.log('saved repo')
+        new: true
+      });
+      console.log('saved repo');
+
     } catch (e) {
-      console.log(e.message);
+      console.log('error inserting', e.message);
     }
   }
+
+  Promise.all(repos).then(values =>{
+    console.log('saved all');
+
+    callback(query());}
+  )
 }
 
 module.exports.query = query;
