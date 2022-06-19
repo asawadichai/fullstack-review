@@ -2,17 +2,20 @@ var db = require('../database');
 
 module.exports = {
   post: function(data, callback) {
+    var repos = [];
     data.forEach((item) => {
-      console.log({id: item.id, full_name: item.full_name, html_url: item.html_url, watchers: item.watchers})
-      db.query(`INSERT INTO repos VALUES (${item.id}, '${item.full_name}', '${item.html_url}', ${item.watchers})
-        ON DUPLICATE KEY UPDATE watchers=${item.watchers}`, (err, result) => {
-        if (err) {
-          console.error(err.sqlMessage);
-        } else {
-          console.log('inserting');
-        }
-      })
+      repos.push(new Promise(function(resolve, reject) {
+        db.query(`INSERT INTO repos VALUES (${item.id}, '${item.full_name}', '${item.html_url}', ${item.watchers}) ON DUPLICATE KEY UPDATE watchers=${item.watchers}`, function (err, result) {
+          if (err) {
+            return reject(err);
+          } else {
+            console.log('resolved');
+            resolve(result);
+          }
+        })
+      }))
     })
+    return Promise.all(repos);
   },
   get: function(callback) {
     db.query('SELECT * FROM repos ORDER BY watchers DESC LIMIT 25', (err, result) => {

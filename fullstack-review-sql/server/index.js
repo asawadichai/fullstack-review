@@ -17,13 +17,19 @@ app.post('/repos', function (req, res) {
     data += chunk;
   })
   req.on('end', () => {
-    console.log(data)
     github.getReposByUsername(data)
     .then(repos => {
-      models.post(repos);
+      models.post(repos)
+      .then(
+        models.get(data => {
+          res.status(201);
+          res.json(data);
+        })
+      )
     })
     .catch(err => {
-      console.log('error', err)
+      console.log('error', err);
+      res.sendStatus(404);
     })
   })
 });
